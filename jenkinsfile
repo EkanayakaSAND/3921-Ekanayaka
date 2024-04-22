@@ -9,28 +9,39 @@ pipeline {
                 }
             }
         }
+        
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t ekanayakasand/3921-ekanayaka:${BUILD_NUMBER} .'
-            }
-        }
-        stage('Login to Docker Hub') {
-            steps {
-                
-                withCredentials([string(credentialsId: 'sande-dockerhub', variable: 'sande-dockerhub')]) {
-                    sh "docker login -u ekanayakasand -p '${sande-dockerhub}'"
+                script {
+                    sh 'docker build -t ekanayakasand/3921-ekanayaka:${BUILD_NUMBER} .'
                 }
             }
         }
+        
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([string(credentialsId: 'sande-dockerhub', variable: 'sande_dockerhub')]) {
+                    script {
+                        sh "docker login -u ekanayakasand -p '${sande_dockerhub}'"
+                    }
+                }
+            }
+        }
+        
         stage('Push Image') {
             steps {
-                sh 'docker push ekanayakasand/3921-ekanayaka:${BUILD_NUMBER}'
+                script {
+                    sh 'docker push ekanayakasand/3921-ekanayaka:${BUILD_NUMBER}'
+                }
             }
         }
     }
+    
     post {
         always {
-            sh 'docker logout'
+            script {
+                sh 'docker logout'
+            }
         }
     }
 }
